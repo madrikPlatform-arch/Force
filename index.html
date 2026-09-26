@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة مدارك - تقييم الوحدة الأولى</title>
+    <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']]
+      }
+    };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <style>
+        :root {
+            --primary-blue: #1e3a8a;
+            --bg-body: #f8fafc;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --text-dark: #1e293b;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            padding: 25px 15px;
+            line-height: 1.6;
+        }
+
+        .exam-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .exam-header {
+            background: var(--primary-blue);
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .exam-header h2 {
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .exam-body {
+            padding: 24px;
+        }
+
+        .q-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .q-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 10px;
+        }
+
+        .q-text {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .diagram-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 15px 0;
+            padding: 10px;
+            min-height: 120px;
+            background: #fafafa;
+            border-radius: 8px;
+            border: 1px dashed #cbd5e1;
+            text-align: center;
+        }
+        
+        .diagram-container img {
+            max-width: 100%;
+            max-height: 250px;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .opt-label {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 6px;
+            background: #f8fafc;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .opt-label:hover {
+            background: #eff6ff;
+            border-color: #93c5fd;
+        }
+
+        .opt-label input {
+            margin-left: 12px;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: var(--primary-blue);
+        }
+
+        .opt-label.correct {
+            background: #f0fdf4 !important;
+            border-color: #16a34a !important;
+            font-weight: 700;
+            color: #15803d;
+        }
+
+        .opt-label.incorrect {
+            background: #fef2f2 !important;
+            border-color: #dc2626 !important;
+            color: #991b1b;
+        }
+
+        .feedback-box {
+            display: none;
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            background: #f8fafc;
+            border-right: 4px solid var(--primary-blue);
+            font-size: 14px;
+        }
+
+        .submit-bar {
+            text-align: center;
+            padding: 20px 0;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn-submit {
+            background: var(--primary-blue);
+            color: white;
+            padding: 12px 35px;
+            font-size: 16px;
+            font-weight: 700;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .btn-submit:hover {
+            background: #1e40af;
+        }
+
+        .btn-submit:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .score-banner {
+            display: none;
+            background: #ffffff;
+            border: 2px solid #16a34a;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .score-num {
+            font-size: 32px;
+            font-weight: bold;
+            color: #16a34a;
+        }
+
+        .input-box {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0 20px 0;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        textarea.essay-input {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-family: Tahoma, sans-serif;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+
+<script>
+    const EXAM_META = {
+        subject: "فيزياء",
+        module: "الكهروستاتيكية",
+        lesson: "تقييم الوحدة الأولى (37 سؤال)",
+        type: "اختبار"
+    };
+    
+    // اللينك للـ Pipeline
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzSAFcPEXqQfaFu4P2x1XTgBNsWb_V7OA9AjW_5HBfKB17nL_YcY4iE58AH3bObx5k/exec";
+    
+    let startTime;
+    let currentStudentId = "";
+</script>
+
+<div class="exam-container" id="login-section">
+    <div class="exam-header">
+        <h2>منصة مدارك - تسجيل الدخول للامتحان</h2>
+    </div>
+    <div class="exam-body" style="text-align: center;">
+        <label style="font-weight: bold; font-size: 18px;">أدخل كود الطالب (ID) للبدء:</label>
+        <input type="text" id="student_id" class="input-box" placeholder="مثال: 123">
+        <button class="btn-submit" onclick="validateStudent()" id="login-btn">تحقق ودخول</button>
+        <div id="login-msg" style="color: #dc2626; margin-top: 15px; font-weight: bold; font-size: 16px;"></div>
+    </div>
+</div>
+
+<div class="exam-container" id="exam-section" style="display: none;">
+    <div class="exam-header">
+        <h2 id="exam-title">تقييم الوحدة الأولى (37 سؤال)</h2>
+        <h4 id="student-welcome" style="margin-top: 10px; color: #cbd5e1; font-weight: normal;"></h4>
+    </div>
+
+    <div class="exam-body">
+        <div id="scoreBanner" class="score-banner">
+            <div>النتيجة:</div>
+            <div class="score-num" id="scoreValue">0 / 37</div>
+            <div id="syncStatus" style="font-size: 14px; color: #64748b; margin-top: 8px;">جاري المزامنة مع قاعدة البيانات لـ Looker Studio...</div>
+        </div>
+
+        <form id="examForm">
+            <!-- Q1 -->
+            <div class="q-card" id="card_q1" data-type="mcq" data-answer="C" data-tag="تحديد الإشارات من اتجاه القوى">
+                <div class="q-title">سؤال 1</div>
+                <div class="q-text">ما الذي تدل عليه القوى المؤثرة في الشحنة $q_3$ في الشكل أدناه بخصوص إشارات الشحنات الثلاث ؟</div>
+                <div class="diagram-container">
+                    <img src="./img/1.png" alt="صورة توضيحية للسؤال 1" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'color: #94a3b8;\'>تعذر تحميل الصورة 1.png من مجلد img</span>';">
+                </div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q1" value="A"> (أ) كل الشحنات الثلاث موجبة</label>
+                    <label class="opt-label"><input type="radio" name="q1" value="B"> (ب) كل الشحنات الثلاث سالبة</label>
+                    <label class="opt-label"><input type="radio" name="q1" value="C"> (ج) الشحنة $q_1$ و $q_2$ مختلفتان</label>
+                    <label class="opt-label"><input type="radio" name="q1" value="D"> (د) الشحنة $q_1$ و $q_2$ متماثلتان والشحنة $q_3$ مختلفة عنهما</label>
+                </div>
+                <div class="feedback-box" id="fb_q1">
+                    <strong>الإجابة الصحيحة: (C)</strong>
+                </div>
+            </div>
+
+            <!-- Q2 -->
+            <div class="q-card" id="card_q2" data-type="mcq" data-answer="A" data-tag="تحليل مقادير القوى من متجهات الرسم">
+                <div class="q-title">سؤال 2</div>
+                <div class="q-text">إذا افترضنا أن طول كل متجه من المتجهين في الشكل أدناه يتناسب مع مقدار القوة الذي يمثله، فما الذي يشير إليه المتجهان بخصوص مقداري الشحنتين $q_1$ و $q_2$ ؟</div>
+                <div class="diagram-container">
+                    <img src="./img/2.png" alt="صورة توضيحية للسؤال 2" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'color: #94a3b8;\'>تعذر تحميل الصورة 2.png من مجلد img</span>';">
+                </div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q2" value="A"> (أ) $|q_1| > |q_2|$</label>
+                    <label class="opt-label"><input type="radio" name="q2" value="B"> (ب) $|q_1| < |q_2|$</label>
+                    <label class="opt-label"><input type="radio" name="q2" value="C"> (ج) $|q_1| = |q_2|$</label>
+                    <label class="opt-label"><input type="radio" name="q2" value="D"> (د) لا يمكن التحديد</label>
+                </div>
+                <div class="feedback-box" id="fb_q2">
+                    <strong>الإجابة الصحيحة: (A)</strong>
+                </div>
+            </div>
+
+            <!-- Q3 -->
+            <div class="q-card" id="card_q3" data-type="mcq" data-answer="B" data-tag="محصلة القوى الكهروستاتيكية">
+                <div class="q-title">سؤال 3</div>
+                <div class="q-text">يوضح الشكل أدناه ثلاث شحنات مرتبة على خط مستقيم. ما اتجاه القوة الكهروستاتيكية المؤثرة في الشحنة الوسطى ؟</div>
+                <div class="diagram-container">
+                    <img src="./img/3.png" alt="صورة توضيحية للسؤال 3" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'color: #94a3b8;\'>تعذر تحميل الصورة 3.png من مجلد img</span>';">
+                </div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q3" value="A"> (أ) يمين</label>
+                    <label class="opt-label"><input type="radio" name="q3" value="B"> (ب) يسار</label>
+                    <label class="opt-label"><input type="radio" name="q3" value="C"> (ج) أعلى</label>
+                    <label class="opt-label"><input type="radio" name="q3" value="D"> (د) أسفل</label>
+                </div>
+                <div class="feedback-box" id="fb_q3">
+                    <strong>الإجابة الصحيحة: (B)</strong>
+                </div>
+            </div>
+
+            <!-- Q4 -->
+            <div class="q-card" id="card_q4" data-type="mcq" data-answer="A" data-tag="محصلة القوى الكهروستاتيكية">
+                <div class="q-title">سؤال 4</div>
+                <div class="q-text">يوضح الشكل أدناه ثلاث شحنات مرتبة على خط مستقيم. ما اتجاه القوة الكهروستاتيكية المؤثرة في الشحنة اليمنى؟</div>
+                <div class="diagram-container">
+                    <img src="./img/4.png" alt="صورة توضيحية للسؤال 4" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'color: #94a3b8;\'>تعذر تحميل الصورة 4.png من مجلد img</span>';">
+                </div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q4" value="A"> (أ) يمين</label>
+                    <label class="opt-label"><input type="radio" name="q4" value="B"> (ب) يسار</label>
+                    <label class="opt-label"><input type="radio" name="q4" value="C"> (ج) أعلى</label>
+                    <label class="opt-label"><input type="radio" name="q4" value="D"> (د) أسفل</label>
+                </div>
+                <div class="feedback-box" id="fb_q4">
+                    <strong>الإجابة الصحيحة: (A)</strong>
+                </div>
+            </div>
+
+            <!-- Q5 -->
+            <div class="q-card" id="card_q5" data-type="mcq" data-answer="C" data-tag="محصلة القوى الكهروستاتيكية">
+                <div class="q-title">سؤال 5</div>
+                <div class="q-text">يوضح الشكل أدناه ثلاث شحنات موضوعة بالترتيب عند زوايا مربع. ما اتجاه القوة الكهروستاتيكية المؤثرة في الشحنة السفلية اليمنى؟</div>
+                <div class="diagram-container">
+                    <img src="./img/5.png" alt="صورة توضيحية للسؤال 5" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'color: #94a3b8;\'>تعذر تحميل الصورة 5.png من مجلد img</span>';">
+                </div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q5" value="A"> (أ) أعلى يسار</label>
+                    <label class="opt-label"><input type="radio" name="q5" value="B"> (ب) أعلى يمين</label>
+                    <label class="opt-label"><input type="radio" name="q5" value="C"> (ج) أسفل يسار</label>
+                    <label class="opt-label"><input type="radio" name="q5" value="D"> (د) أسفل يمين</label>
+                </div>
+                <div class="feedback-box" id="fb_q5">
+                    <strong>الإجابة الصحيحة: (C)</strong>
+                </div>
+            </div>
+
+            <!-- Q6 -->
+            <div class="q-card" id="card_q6" data-type="mcq" data-answer="D" data-tag="محصلة القوى الكهروستاتيكية">
+                <div class="q-title">سؤال 6</div>
+                <div class="q-text">يوضح الشكل أدناه أربع شحنات موضوعة بالترتيب عند زوايا مربع. ما اتجاه القوة الكهروستاتيكية المؤثرة في الشحنة السفلية اليمنى؟</div>
+                <div class="diagram-container">
+                    <img src="./img/6.png" alt="صورة توضيحية للسؤال 6" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'color: #94a3b8;\'>تعذر تحميل الصورة 6.png من مجلد img</span>';">
+                </div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q6" value="A"> (أ) أعلى يسار</label>
+                    <label class="opt-label"><input type="radio" name="q6" value="B"> (ب) أعلى يمين</label>
+                    <label class="opt-label"><input type="radio" name="q6" value="C"> (ج) أسفل يسار</label>
+                    <label class="opt-label"><input type="radio" name="q6" value="D"> (د) أسفل يمين</label>
+                </div>
+                <div class="feedback-box" id="fb_q6">
+                    <strong>الإجابة الصحيحة: (D)</strong>
+                </div>
+            </div>
+
+            <!-- Q7 -->
+            <div class="q-card" id="card_q7" data-type="mcq" data-answer="C" data-tag="محصلة القوى في بعدين">
+                <div class="q-title">سؤال 7</div>
+                <div class="q-text">شحنتان نقطيتان على زوايا مثلث قائم كما بالشكل. ما مقدار القوة الكهروستاتيكية المؤثرة في شحنة مقدارها 6.0 µC موضوعة عند الزاوية القائمة؟</div>
+                <div class="diagram-container">
+                    <img src="./img/7.png" alt="صورة توضيحية للسؤال 7" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'color: #94a3b8;\'>تعذر تحميل الصورة 7.png من مجلد img</span>';">
+                </div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q7" value="A"> (أ) 10 N</label>
+                    <label class="opt-label"><input type="radio" name="q7" value="B"> (ب) 24 N</label>
+                    <label class="opt-label"><input type="radio" name="q7" value="C"> (ج) 32 N</label>
+                    <label class="opt-label"><input type="radio" name="q7" value="D"> (د) 44 N</label>
+                </div>
+                <div class="feedback-box" id="fb_q7">
+                    <strong>الإجابة الصحيحة: (C)</strong>
+                </div>
+            </div>
+
+            <!-- Q8 -->
+            <div class="q-card" id="card_q8" data-type="mcq" data-answer="C" data-tag="محصلة القوى في بعدين">
+                <div class="q-title">سؤال 8</div>
+                <div class="q-text">شحنتان نقطيتان على زوايا مثلث قائم كما بالشكل. ما اتجاه القوة الكهروستاتيكية المؤثرة في شحنة مقدارها 6.0 µC موضوعة عند الزاوية القائمة ؟</div>
+                <div class="diagram-container">
+                    <img src="./img/8.png" alt="صورة توضيحية للسؤال 8" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'color: #94a3b8;\'>تعذر تحميل الصورة 8.png من مجلد img</span>';">
+                </div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q8" value="A"> (أ) -18°</label>
+                    <label class="opt-label"><input type="radio" name="q8" value="B"> (ب) 45°</label>
+                    <label class="opt-label"><input type="radio" name="q8" value="C"> (ج) -85°</label>
+                    <label class="opt-label"><input type="radio" name="q8" value="D"> (د) +85°</label>
+                </div>
+                <div class="feedback-box" id="fb_q8">
+                    <strong>الإجابة الصحيحة: (C)</strong>
+                </div>
+            </div>
+
+            <!-- Q9 -->
+            <div class="q-card" id="card_q9" data-type="mcq" data-answer="C" data-tag="محصلة القوى في بعدين">
+                <div class="q-title">سؤال 9</div>
+                <div class="q-text">ما مقدار واتجاه القوة الكهروستاتيكية المؤثرة في الإلكترون في الشكل المقابل؟</div>
+                <div class="diagram-container">
+                    <img src="./img/9.png" alt="صورة توضيحية للسؤال 9" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'color: #94a3b8;\'>تعذر تحميل الصورة 9.png من مجلد img</span>';">
+                </div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q9" value="A"> (أ) $5.07 \times 10^{-26} N$ يسار</label>
+                    <label class="opt-label"><input type="radio" name="q9" value="B"> (ب) $5.07 \times 10^{-26} N$ يمين</label>
+                    <label class="opt-label"><input type="radio" name="q9" value="C"> (ج) $6.23 \times 10^{-26} N$ يسار</label>
+                    <label class="opt-label"><input type="radio" name="q9" value="D"> (د) $6.23 \times 10^{-26} N$ يمين</label>
+                </div>
+                <div class="feedback-box" id="fb_q9">
+                    <strong>الإجابة الصحيحة: (C)</strong>
+                </div>
+            </div>
+
+            <!-- Q10 -->
+            <div class="q-card" id="card_q10" data-type="mcq" data-answer="A" data-tag="محصلة القوى في بعد واحد">
+                <div class="q-title">سؤال 10</div>
+                <div class="q-text">وفقاً للشكل، ما مقدار القوة المحصلة على الشحنة q1 ؟</div>
+                <div class="diagram-container">
+                    <img src="./img/10.png" alt="صورة توضيحية للسؤال 10" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'color: #94a3b8;\'>تعذر تحميل الصورة 10.png من مجلد img</span>';">
+                </div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q10" value="A"> (أ) 0.0 N</label>
+                    <label class="opt-label"><input type="radio" name="q10" value="B"> (ب) $4.8 \times 10^{-9} N$</label>
+                    <label class="opt-label"><input type="radio" name="q10" value="C"> (ج) $6.4 \times 10^{-9} N$</label>
+                    <label class="opt-label"><input type="radio" name="q10" value="D"> (د) $9.6 \times 10^{-9} N$</label>
+                </div>
+                <div class="feedback-box" id="fb_q10">
+                    <strong>الإجابة الصحيحة: (A)</strong>
+                </div>
+            </div>
+
+            <!-- Q11 -->
+            <div class="q-card" id="card_q11" data-type="mcq" data-answer="B" data-tag="محصلة القوى في بعدين">
+                <div class="q-title">سؤال 11</div>
+                <div class="q-text">يظهر الشكل المجاور ثلاث بروتونات و الكترون عند لحظة ما، أي الآتية يمثل محصلة القوى الكهروستاتيكية المؤثرة في الالكترون عند نقطة الأصل ؟</div>
+                <div class="diagram-container">
+                    <img src="./img/11.png" alt="صورة توضيحية للسؤال 11" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'color: #94a3b8;\'>تعذر تحميل الصورة 11.png من مجلد img</span>';">
+                </div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q11" value="A"> (أ) $K \times \frac{1.6 \times 10^{-19}}{d^2}$ للأعلى</label>
+                    <label class="opt-label"><input type="radio" name="q11" value="B"> (ب) $K \times \frac{(1.6 \times 10^{-19})^2}{d^2}$ للأعلى</label>
+                    <label class="opt-label"><input type="radio" name="q11" value="C"> (ج) $K \times \frac{1.6 \times 10^{-19}}{d^2}$ للأسفل</label>
+                    <label class="opt-label"><input type="radio" name="q11" value="D"> (د) $K \times \frac{(1.6 \times 10^{-19})^2}{d^2}$ للأسفل</label>
+                </div>
+                <div class="feedback-box" id="fb_q11">
+                    <strong>الإجابة الصحيحة: (B)</strong>
+                </div>
+            </div>
+
+            <!-- Q12 -->
+            <div class="q-card" id="card_q12" data-type="mcq" data-answer="C" data-tag="قانون كولوم والنسب">
+                <div class="q-title">سؤال 12</div>
+                <div class="q-text">يوضح الشكل أدناه كرتان A و B الشحنة المحصلة على كل كرة $4.0 \times 10^{-6} C$ والمسافة الفاصلة بينهما 1.0 m. أي تركيب من الكرات المشحونة ينتج نفس مقدار القوة الكهروستاتيكية بين الكرتين A و B ؟</div>
+                <div class="diagram-container">
+                    <img src="./img/12.png" alt="صورة توضيحية للسؤال 12" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'color: #94a3b8;\'>تعذر تحميل الصورة 12.png من مجلد img</span>';">
+                </div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q12" value="A"> (أ) الشكل A</label>
+                    <label class="opt-label"><input type="radio" name="q12" value="B"> (ب) الشكل B</label>
+                    <label class="opt-label"><input type="radio" name="q12" value="C"> (ج) الشكل C</label>
+                    <label class="opt-label"><input type="radio" name="q12" value="D"> (د) الشكل D</label>
+                </div>
+                <div class="feedback-box" id="fb_q12">
+                    <strong>الإجابة الصحيحة: (C)</strong>
+                </div>
+            </div>
+
+            <!-- Q13 -->
+            <div class="q-card" id="card_q13" data-type="mcq" data-answer="A" data-tag="محصلة القوى في بعد واحد">
+                <div class="q-title">سؤال 13</div>
+                <div class="q-text">في الشكل المجاور $q_1=10.0 \mu C$ و $q_2=-20.0 \mu C$ و $q_3=30.0 \mu C$. تقاس المسافات على المحور الأفقي بالمتر. أوجد مقدار القوة الكهربائية المؤثرة على الشحنة ($q_3$) والناتجة عن الشحنتين $q_1$ و $q_2$.</div>
+                <div class="diagram-container">
+                    <img src="./img/13.png" alt="صورة توضيحية للسؤال 13" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'color: #94a3b8;\'>تعذر تحميل الصورة 13.png من مجلد img</span>';">
+                </div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q13" value="A"> (أ) 1.05 N لليسار</label>
+                    <label class="opt-label"><input type="radio" name="q13" value="B"> (ب) 1.35 N لليسار</label>
+                    <label class="opt-label"><input type="radio" name="q13" value="C"> (ج) 1.05 N لليمين</label>
+                    <label class="opt-label"><input type="radio" name="q13" value="D"> (د) 1.35 N لليمين</label>
+                </div>
+                <div class="feedback-box" id="fb_q13">
+                    <strong>الإجابة الصحيحة: (A)</strong>
+                </div>
+            </div>
+
+            <!-- Q14 -->
+            <div class="q-card" id="card_q14" data-type="text" data-answer="F ≈ 2.8 × 10^-5 N, θ ≈ 28.3°" data-tag="محصلة القوى في بعدين (حسابي)">
+                <div class="q-title">سؤال 14</div>
+                <div class="q-text">في الشكل أدناه أوجد محصلة القوة الكهروستاتيكية (مقداراً واتجاها) المؤثرة في الشحنة q3 ؟</div>
+                <div class="diagram-container">
+                    <img src="./img/14.png" alt="صورة توضيحية للسؤال 14" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'color: #94a3b8;\'>تعذر تحميل الصورة 14.png من مجلد img</span>';">
+                </div>
+                <textarea class="essay-input" placeholder="اكتب إجابتك أو خطوات الحل هنا..."></textarea>
+                <div class="feedback-box" id="fb_q14">
+                    <strong>الإجابة الصحيحة: (F ≈ 2.8 × 10^-5 N, θ ≈ 28.3°)</strong>
+                </div>
+            </div>
+
+            <!-- Q15 -->
+            <div class="q-card" id="card_q15" data-type="text" data-answer="F ≈ 0.0917 N, θ ≈ 47.7°" data-tag="محصلة القوى في بعدين (مربع)">
+                <div class="q-title">سؤال 15</div>
+                <div class="q-text">يوضح الشكل أدناه أربعة أجسام مشحونة تقع عند زوايا مربع طول ضلعه 1.25 m. أوجد محصلة القوة الكهروستاتيكية (مقداراً واتجاها) المؤثرة في الشحنة q4 ؟</div>
+                <div class="diagram-container">
+                    <img src="./img/15.png" alt="صورة توضيحية للسؤال 15" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'color: #94a3b8;\'>تعذر تحميل الصورة 15.png من مجلد img</span>';">
+                </div>
+                <textarea class="essay-input" placeholder="اكتب إجابتك أو خطوات الحل هنا..."></textarea>
+                <div class="feedback-box" id="fb_q15">
+                    <strong>الإجابة الصحيحة: (F ≈ 0.0917 N, θ ≈ 47.7°)</strong>
+                </div>
+            </div>
+
+            <!-- Q16 -->
+            <div class="q-card" id="card_q16" data-type="mcq" data-answer="B" data-tag="العوامل المؤثرة في قانون كولوم">
+                <div class="q-title">سؤال 16</div>
+                <div class="q-text">إذا وضعت شحنتين بحيث تفصل بينهما مسافة r ثم ضاعفت كلاً من الشحنتين وضاعفت المسافة بينهما، فكيف سيتغير مقدار القوة المبذولة بين الشحنتين ؟</div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q16" value="A"> (أ) ستكون القوة الجديدة نصف هذا المقدار</label>
+                    <label class="opt-label"><input type="radio" name="q16" value="B"> (ب) ستكون القوة الجديدة بالمقدار نفسه</label>
+                    <label class="opt-label"><input type="radio" name="q16" value="C"> (ج) ستكون القوة الجديدة ضعف هذا المقدار</label>
+                    <label class="opt-label"><input type="radio" name="q16" value="D"> (د) ستزيد القوة الجديدة بأربعة أضعاف</label>
+                </div>
+                <div class="feedback-box" id="fb_q16">
+                    <strong>الإجابة الصحيحة: (B)</strong>
+                </div>
+            </div>
+
+            <!-- Q17 -->
+            <div class="q-card" id="card_q17" data-type="text" data-answer="58 N" data-tag="تطبيق قانون كولوم">
+                <div class="q-title">سؤال 17</div>
+                <div class="q-text">ما مقدار القوة الكهروستاتيكية المبذولة بين البروتونين داخل نواة ذرة الهيليوم؟ $r=2 \times 10^{-15}m$</div>
+                <textarea class="essay-input" placeholder="اكتب إجابتك أو خطوات الحل هنا..."></textarea>
+                <div class="feedback-box" id="fb_q17">
+                    <strong>الإجابة الصحيحة: (58 N)</strong>
+                </div>
+            </div>
+
+            <!-- Q18 -->
+            <div class="q-card" id="card_q18" data-type="mcq" data-answer="D" data-tag="تأثير المسافة على القوة">
+                <div class="q-title">سؤال 18</div>
+                <div class="q-text">شحنتان تفصل بينهما مسافة d ومقدار القوة الكهروستاتيكية المتبادلة بينهما F. ما مقدار القوة الكهروستاتيكية المتبادلة بينهما إذا أصبحت المسافة بينهما d/2 ؟</div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q18" value="A"> (أ) F/4</label>
+                    <label class="opt-label"><input type="radio" name="q18" value="B"> (ب) F/2</label>
+                    <label class="opt-label"><input type="radio" name="q18" value="C"> (ج) 2F</label>
+                    <label class="opt-label"><input type="radio" name="q18" value="D"> (د) 4F</label>
+                </div>
+                <div class="feedback-box" id="fb_q18">
+                    <strong>الإجابة الصحيحة: (D)</strong>
+                </div>
+            </div>
+
+            <!-- Q19 -->
+            <div class="q-card" id="card_q19" data-type="mcq" data-answer="A" data-tag="تأثير الشحنات والمسافة على القوة">
+                <div class="q-title">سؤال 19</div>
+                <div class="q-text">شحنتان نقطيتان Q1 و Q2 تفصل بينهما مسافة d والقوة الكهروستاتيكية المتبادلة بينهما F. ما مقدار القوة الكهروستاتيكية المتبادلة بينهما إذا زادت الشحنة Q1 للضعف وزادت الشحنة Q2 ثلاثة أضعاف وزادت المسافة الفاصلة d بينهما خمس أضعاف؟</div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q19" value="A"> (أ) 0.24 F</label>
+                    <label class="opt-label"><input type="radio" name="q19" value="B"> (ب) 0.20 F</label>
+                    <label class="opt-label"><input type="radio" name="q19" value="C"> (ج) 12 F</label>
+                    <label class="opt-label"><input type="radio" name="q19" value="D"> (د) 1.2 F</label>
+                </div>
+                <div class="feedback-box" id="fb_q19">
+                    <strong>الإجابة الصحيحة: (A)</strong>
+                </div>
+            </div>
+
+            <!-- Q20 -->
+            <div class="q-card" id="card_q20" data-type="mcq" data-answer="B" data-tag="تأثير القوة على المسافة الفاصلة">
+                <div class="q-title">سؤال 20</div>
+                <div class="q-text">شحنتان نقطيتان مقدار كلا منهما Q وتفصل بينهما مسافة مقدارها L ويتأثر كلا منهما بقوة متبادلة F. إذا تم تقريب الشحنتين من بعضهما فزادت القوة المتبادلة بينهما إلى 2F. ما مقدار المسافة الجديدة الفاصلة بين الشحنتين؟</div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q20" value="A"> (أ) L/2</label>
+                    <label class="opt-label"><input type="radio" name="q20" value="B"> (ب) L/\sqrt{2}</label>
+                    <label class="opt-label"><input type="radio" name="q20" value="C"> (ج) L/4</label>
+                    <label class="opt-label"><input type="radio" name="q20" value="D"> (د) L</label>
+                </div>
+                <div class="feedback-box" id="fb_q20">
+                    <strong>الإجابة الصحيحة: (B)</strong>
+                </div>
+            </div>
+
+            <!-- Q21 -->
+            <div class="q-card" id="card_q21" data-type="mcq" data-answer="A" data-tag="العوامل المؤثرة في القوة المتبادلة">
+                <div class="q-title">سؤال 21</div>
+                <div class="q-text">شحنتان بينهما قوة جذب متبادلة F. إذا تضاعف مقدار كلا الشحنتين وقلت المسافة الفاصلة بينهما للنصف فإن القوة المتبادلة بينهما تصبح:</div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q21" value="A"> (أ) تزداد 16 ضعف</label>
+                    <label class="opt-label"><input type="radio" name="q21" value="B"> (ب) تزداد أربعة أضعاف</label>
+                    <label class="opt-label"><input type="radio" name="q21" value="C"> (ج) تزداد للضعف</label>
+                    <label class="opt-label"><input type="radio" name="q21" value="D"> (د) تبقى كما هي</label>
+                </div>
+                <div class="feedback-box" id="fb_q21">
+                    <strong>الإجابة الصحيحة: (A)</strong>
+                </div>
+            </div>
+
+            <!-- Q22 -->
+            <div class="q-card" id="card_q22" data-type="text" data-answer="4 cm" data-tag="حساب المسافة بدلالة القوة">
+                <div class="q-title">سؤال 22</div>
+                <div class="q-text">كرتان مشحونتان تفصل بينهما مسافة مقدارها 8.00cm. إذا اقتربت الكرتان إحداهما من الأخرى بما يكفي لزيادة مقدار القوة المؤثرة في كل منهما بمعدل أربعة أضعاف. فما المسافة الفاصلة بينهما عندئذ ؟</div>
+                <textarea class="essay-input" placeholder="اكتب إجابتك أو خطوات الحل هنا..."></textarea>
+                <div class="feedback-box" id="fb_q22">
+                    <strong>الإجابة الصحيحة: (4 cm)</strong>
+                </div>
+            </div>
+
+            <!-- Q23 -->
+            <div class="q-card" id="card_q23" data-type="text" data-answer="0.0125 N" data-tag="حساب القوة الجديدة">
+                <div class="q-title">سؤال 23</div>
+                <div class="q-text">جسمان مشحونان بينهما قوة تنافر 0.100 N. إذا قلت شحنة أحد الجسمين إلى النصف وتضاعفت المسافة الفاصلة بين الجسمين ، فما مقدار القوة الجديدة ؟</div>
+                <textarea class="essay-input" placeholder="اكتب إجابتك أو خطوات الحل هنا..."></textarea>
+                <div class="feedback-box" id="fb_q23">
+                    <strong>الإجابة الصحيحة: (0.0125 N)</strong>
+                </div>
+            </div>
+
+            <!-- Q24 -->
+            <div class="q-card" id="card_q24" data-type="mcq" data-answer="B" data-tag="قانون كولوم - حساب المسافة">
+                <div class="q-title">سؤال 24</div>
+                <div class="q-text">إذا كانت القوة الكهروستاتيكية المتبادلة بين شحنتين مقدارهما 3.0 µC و 2.0 µC تساوي 10 N. ما مقدار المسافة الفاصلة بين الشحنتين؟</div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q24" value="A"> (أ) 5.2 cm</label>
+                    <label class="opt-label"><input type="radio" name="q24" value="B"> (ب) 7.3 cm</label>
+                    <label class="opt-label"><input type="radio" name="q24" value="C"> (ج) 8.6 cm</label>
+                    <label class="opt-label"><input type="radio" name="q24" value="D"> (د) 9.5 cm</label>
+                </div>
+                <div class="feedback-box" id="fb_q24">
+                    <strong>الإجابة الصحيحة: (B)</strong>
+                </div>
+            </div>
+
+            <!-- Q25 -->
+            <div class="q-card" id="card_q25" data-type="mcq" data-answer="A" data-tag="قانون كولوم - إيجاد الشحنة">
+                <div class="q-title">سؤال 25</div>
+                <div class="q-text">شحنتان نقطيتان (+q) و (-q) لهما نفس المقدار وتفصل بينهما مسافة (12 cm)، إذا كانت القوة الكهروستاتيكية المتبادلة بينهما (6.0 N). ما مقدار كل شحنة؟</div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q25" value="A"> (أ) 3.1 µC</label>
+                    <label class="opt-label"><input type="radio" name="q25" value="B"> (ب) 3.1 nC</label>
+                    <label class="opt-label"><input type="radio" name="q25" value="C"> (ج) 8.9 µC</label>
+                    <label class="opt-label"><input type="radio" name="q25" value="D"> (د) 8.9 nC</label>
+                </div>
+                <div class="feedback-box" id="fb_q25">
+                    <strong>الإجابة الصحيحة: (A)</strong>
+                </div>
+            </div>
+
+            <!-- Q26 -->
+            <div class="q-card" id="card_q26" data-type="mcq" data-answer="C" data-tag="محصلة القوى في بعد واحد">
+                <div class="q-title">سؤال 26</div>
+                <div class="q-text">شحنة مقدارها (-15.0 µC) على محور x عند الموضع x=-25.0cm، وشحنة أخرى مقدارها (+45.0 µC) على محور x عند الموضع x=+30.0cm. ما مقدار القوة الكهروستاتيكية المؤثرة على شحنة ثالثة مقدارها (3.50 µC) موجودة عند نقطة الأصل x=0 ؟</div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q26" value="A"> (أ) 23.3 N</label>
+                    <label class="opt-label"><input type="radio" name="q26" value="B"> (ب) 2.33 mN</label>
+                    <label class="opt-label"><input type="radio" name="q26" value="C"> (ج) 8.18 N</label>
+                    <label class="opt-label"><input type="radio" name="q26" value="D"> (د) 2.67 N</label>
+                </div>
+                <div class="feedback-box" id="fb_q26">
+                    <strong>الإجابة الصحيحة: (C)</strong>
+                </div>
+            </div>
+
+            <!-- Q27 -->
+            <div class="q-card" id="card_q27" data-type="mcq" data-answer="C" data-tag="محصلة القوى في بعدين">
+                <div class="q-title">سؤال 27</div>
+                <div class="q-text">احسب مقدار القوة الكهروستاتيكية المؤثرة على شحنة مقدارها 1.20 mC عند نقطة الأصل إذا كانت الشحنة +2.40 mC عند (3.0m, 0) والشحنة -5.70 mC عند (0, 4.0m).</div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q27" value="A"> (أ) 1.8 kN</label>
+                    <label class="opt-label"><input type="radio" name="q27" value="B"> (ب) 2.9 kN</label>
+                    <label class="opt-label"><input type="radio" name="q27" value="C"> (ج) 3.8 kN</label>
+                    <label class="opt-label"><input type="radio" name="q27" value="D"> (د) 4.8 kN</label>
+                </div>
+                <div class="feedback-box" id="fb_q27">
+                    <strong>الإجابة الصحيحة: (C)</strong>
+                </div>
+            </div>
+
+            <!-- Q28 -->
+            <div class="q-card" id="card_q28" data-type="text" data-answer="1.21 m" data-tag="الاتزان في القوى الكهروستاتيكية">
+                <div class="q-title">سؤال 28</div>
+                <div class="q-text">كرتان كتلة كل منهما 0.9680 kg وشحنة كلا منهما $29.59 \mu C$ وتتدليان من السقف بخيطين لهما الطول نفسه كما موضح بالشكل أدناه ، إذا كانت الزاوية التي يصنعها الخيطان مع المستوى الرأسي $29.79^\circ$. فما طول الخيطين ؟</div>
+                <textarea class="essay-input" placeholder="اكتب إجابتك أو خطوات الحل هنا..."></textarea>
+                <div class="feedback-box" id="fb_q28">
+                    <strong>الإجابة الصحيحة: (1.21 m)</strong>
+                </div>
+            </div>
+
+            <!-- Q29 -->
+            <div class="q-card" id="card_q29" data-type="mcq" data-answer="D" data-tag="الاتزان في القوى الكهروستاتيكية">
+                <div class="q-title">سؤال 29</div>
+                <div class="q-text">شحنتان متساويتان كتلة كلا منهما 15 g معلقة في طرف خيط طوله 1m (مهمل الكتلة). إذا كانت الزاوية بين الخيطين 5° ما مقدار شحنة كل كرة؟</div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q29" value="A"> (أ) 36 nC</label>
+                    <label class="opt-label"><input type="radio" name="q29" value="B"> (ب) 55 nC</label>
+                    <label class="opt-label"><input type="radio" name="q29" value="C"> (ج) 64 nC</label>
+                    <label class="opt-label"><input type="radio" name="q29" value="D"> (د) 74 nC</label>
+                </div>
+                <div class="feedback-box" id="fb_q29">
+                    <strong>الإجابة الصحيحة: (D)</strong>
+                </div>
+            </div>
+
+            <!-- Q30 -->
+            <div class="q-card" id="card_q30" data-type="text" data-answer="0.061 kg" data-tag="الاتزان على مستوى مائل">
+                <div class="q-title">سؤال 30</div>
+                <div class="q-text">خرزة شحنتها $q_1=+1.28 \mu C$ ثابتة في مكانها على سلك عازل يصنع زاوية مقدارها $\theta=42.3^\circ$ مع المستوى الأفقي كما بالشكل أدناه وتنزلق خرزة ثانية شحنتها $q_2=-5.06 \mu C$ على السلك من دون احتكاك. وعند مسافة $d=0.380m$ بين الخرزتين تبلغ محصلة القوة المؤثرة في الخرزة الثانية صفرا. ما مقدار الكتلة للخرزة الثانية ؟</div>
+                <textarea class="essay-input" placeholder="اكتب إجابتك أو خطوات الحل هنا..."></textarea>
+                <div class="feedback-box" id="fb_q30">
+                    <strong>الإجابة الصحيحة: (0.061 kg)</strong>
+                </div>
+            </div>
+
+            <!-- Q31 -->
+            <div class="q-card" id="card_q31" data-type="mcq" data-answer="D" data-tag="قوة الجاذبية والقوة الكهروستاتيكية">
+                <div class="q-title">سؤال 31</div>
+                <div class="q-text">كرة بلاستيكية شحنتها (-5 nC) وتقع على مسافة 2 cm فوق خرزة زجاجية شحنتها (+5 nC) ساكنة على طاولة. ما مقدار كتلة الخرزة كي تنجذب للكرة البلاستيكية؟</div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q31" value="A"> (أ) 57 g</label>
+                    <label class="opt-label"><input type="radio" name="q31" value="B"> (ب) 65 mg</label>
+                    <label class="opt-label"><input type="radio" name="q31" value="C"> (ج) 81 µg</label>
+                    <label class="opt-label"><input type="radio" name="q31" value="D"> (د) 57 mg</label>
+                </div>
+                <div class="feedback-box" id="fb_q31">
+                    <strong>الإجابة الصحيحة: (D)</strong>
+                </div>
+            </div>
+
+            <!-- Q32 -->
+            <div class="q-card" id="card_q32" data-type="text" data-answer="0.16 m" data-tag="نقطة التعادل">
+                <div class="q-title">سؤال 32</div>
+                <div class="q-text">شحنتان نقطيتان مثبتتان على محور x : إذا كانت الشحنة $q_1=0.15 \mu C$ موضوعة عند نقطة الأصل $(x_1=0)$ وكانت الشحنة $q_2=0.35 \mu C$ على محور x الموجب عند $x_2=0.40m$. أين يجب أن توضع الشحنة الثالثة على محور x لكي تكون محصلة القوة الكهروستاتيكية المؤثرة فيها تساوي صفر (نقطة اتزان) ؟</div>
+                <textarea class="essay-input" placeholder="اكتب إجابتك أو خطوات الحل هنا..."></textarea>
+                <div class="feedback-box" id="fb_q32">
+                    <strong>الإجابة الصحيحة: (0.16 m)</strong>
+                </div>
+            </div>
+
+            <!-- Q33 -->
+            <div class="q-card" id="card_q33" data-type="text" data-answer="27 cm" data-tag="نقطة التعادل خارج الشحنتين">
+                <div class="q-title">سؤال 33</div>
+                <div class="q-text">شحنتان نقطيتان مثبتتان على محور x : إذا كانت الشحنة $q_1=6.0 \mu C$ موضوعة عند نقطة الأصل $(x_1=0)$ وكانت الشحنة $q_2=-3.0 \mu C$ موضوعة عند النقطة A حيث $(x_2=8.0 cm)$. أين يجب أن توضع الشحنة الثالثة $q_3$ على محور x لكي تكون محصلة القوة الكهروستاتيكية المؤثرة فيها تساوي صفر</div>
+                <textarea class="essay-input" placeholder="اكتب إجابتك أو خطوات الحل هنا..."></textarea>
+                <div class="feedback-box" id="fb_q33">
+                    <strong>الإجابة الصحيحة: (27 cm)</strong>
+                </div>
+            </div>
+
+            <!-- Q34 -->
+            <div class="q-card" id="card_q34" data-type="mcq" data-answer="B" data-tag="نقطة التعادل">
+                <div class="q-title">سؤال 34</div>
+                <div class="q-text">شحنة $Q_1=Q$ على محور x عند الموضع $x=a$ أين يجب أن نضع شحنة أخرى مقدارها $Q_2=-9Q$ لكي تنعدم محصلة القوة الكهروستاتيكية عند نقطة الأصل؟</div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q34" value="A"> (أ) x=3a</label>
+                    <label class="opt-label"><input type="radio" name="q34" value="B"> (ب) x=-3a</label>
+                    <label class="opt-label"><input type="radio" name="q34" value="C"> (ج) x=-2a</label>
+                    <label class="opt-label"><input type="radio" name="q34" value="D"> (د) x=2a</label>
+                </div>
+                <div class="feedback-box" id="fb_q34">
+                    <strong>الإجابة الصحيحة: (B)</strong>
+                </div>
+            </div>
+
+            <!-- Q35 -->
+            <div class="q-card" id="card_q35" data-type="mcq" data-answer="D" data-tag="الاتزان الكهروستاتيكي">
+                <div class="q-title">سؤال 35</div>
+                <div class="q-text">ثلاث شحنات نقطية على خط مستقيم كما موضح في الشكل أدناه. الشحنة $q_A=1.5 \mu C$ بينما الشحنتان $q_B$ و $q_C$ مجهولتين. إذا انعدمت محصلة القوة الكهروستاتيكية المؤثرة في الشحنة $q_C$، فما مقدار الشحنة $q_B$ ؟</div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q35" value="A"> (أ) 0.2 µC</label>
+                    <label class="opt-label"><input type="radio" name="q35" value="B"> (ب) 0.5 µC</label>
+                    <label class="opt-label"><input type="radio" name="q35" value="C"> (ج) 4.5 µC</label>
+                    <label class="opt-label"><input type="radio" name="q35" value="D"> (د) 13.5 µC</label>
+                </div>
+                <div class="feedback-box" id="fb_q35">
+                    <strong>الإجابة الصحيحة: (D)</strong>
+                </div>
+            </div>
+
+            <!-- Q36 -->
+            <div class="q-card" id="card_q36" data-type="mcq" data-answer="C" data-tag="النسب في نقطة التعادل">
+                <div class="q-title">سؤال 36</div>
+                <div class="q-text">ثلاث جسيمات نقطية A و B و C تحمل شحنات مقدارها qA و qB و qC على الترتيب. وضعت الثلاث جسيمات على خط مستقيم كما موضح بالشكل أدناه، إذا كانت محصلة القوة المؤثرة في الجسم A تساوي صفرا. ما مقدار النسبة qB/qC ؟</div>
+                <div class="options-grid">
+                    <label class="opt-label"><input type="radio" name="q36" value="A"> (أ) 1/9</label>
+                    <label class="opt-label"><input type="radio" name="q36" value="B"> (ب) 9/4</label>
+                    <label class="opt-label"><input type="radio" name="q36" value="C"> (ج) 4/9</label>
+                    <label class="opt-label"><input type="radio" name="q36" value="D"> (د) 1/4</label>
+                </div>
+                <div class="feedback-box" id="fb_q36">
+                    <strong>الإجابة الصحيحة: (C)</strong>
+                </div>
+            </div>
+
+            <!-- Q37 -->
+            <div class="q-card" id="card_q37" data-type="text" data-answer="شحنة q2 تختلف عن شحنة q1 في الإشارة وتقل عنها في المقدار: صواب." data-tag="نقطة التعادل">
+                <div class="q-title">سؤال 37</div>
+                <div class="q-text">وضعت شحنة موجبة +q عند النقطة p على يمين الشحنتين q1 و q2 كما بالشكل أدناه فكانت محصلة القوة الكهروستاتيكية المؤثرة في الشحنة +q تساوي صفر. حدد ما إذا كانت العبارات التالية صواباً أم خطأ ؟</div>
+                <textarea class="essay-input" placeholder="اكتب إجابتك أو خطوات الحل هنا..."></textarea>
+                <div class="feedback-box" id="fb_q37">
+                    <strong>الإجابة الصحيحة: (شحنة q2 تختلف عن شحنة q1 في الإشارة وتقل عنها في المقدار: صواب.)</strong>
+                </div>
+            </div>
+
+
+            <div class="submit-bar">
+                <button type="button" class="btn-submit" onclick="submitExam()" id="submit-btn">إنهاء الامتحان وإرسال النتيجة</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function validateStudent() {
+        const id = document.getElementById("student_id").value.trim();
+        if(!id) {
+            document.getElementById("login-msg").innerText = "الرجاء إدخال الكود أولاً.";
+            return;
+        }
+        
+        document.getElementById("login-btn").disabled = true;
+        document.getElementById("login-btn").innerText = "جاري التحقق...";
+        document.getElementById("login-msg").innerText = "";
+        
+        fetch(`${SCRIPT_URL}?student_id=${id}`)
+            .then(res => res.json())
+            .then(data => {
+                if(data.valid) {
+                    currentStudentId = id;
+                    document.getElementById("login-section").style.display = "none";
+                    document.getElementById("exam-section").style.display = "block";
+                    document.getElementById("student-welcome").innerText = "مرحباً بك: " + data.student_name;
+                    startTime = new Date();
+                } else {
+                    document.getElementById("login-msg").innerText = data.error || "الكود غير مسجل في قاعدة البيانات.";
+                    document.getElementById("login-btn").disabled = false;
+                    document.getElementById("login-btn").innerText = "تحقق ودخول";
+                }
+            })
+            .catch(err => {
+                document.getElementById("login-msg").innerText = "حدث خطأ في الاتصال بالخادم، تأكد من اتصال الإنترنت أو صحة الرابط.";
+                document.getElementById("login-btn").disabled = false;
+                document.getElementById("login-btn").innerText = "تحقق ودخول";
+            });
+    }
+
+    function submitExam() {
+        document.getElementById("submit-btn").disabled = true;
+        document.getElementById("submit-btn").innerText = "جاري الحفظ وإرسال التقرير...";
+        
+        const timeSeconds = Math.floor((new Date() - startTime) / 1000);
+        let currentScore = 0;
+        let weaknesses = [];
+        let examDetails = [];
+        
+        const questions = document.querySelectorAll(".q-card");
+        const totalItems = questions.length;
+
+        questions.forEach((q, index) => {
+            const qNum = index + 1;
+            const correctAnswer = q.getAttribute("data-answer");
+            const tag = q.getAttribute("data-tag");
+            const type = q.getAttribute("data-type");
+            
+            let userSelected = 'لم يجب';
+            let answeredCorrectly = false;
+            let chosenElement = null;
+
+            if (type === "mcq") {
+                const radios = q.querySelectorAll('input[type="radio"]');
+                radios.forEach(r => {
+                    const parentBox = r.parentElement;
+                    if (r.checked) {
+                        userSelected = r.value;
+                        chosenElement = parentBox;
+                    }
+                    if (r.value === correctAnswer) {
+                        parentBox.classList.add('correct');
+                    }
+                    r.disabled = true;
+                });
+
+                if (userSelected === correctAnswer) {
+                    answeredCorrectly = true;
+                    currentScore++;
+                } else {
+                    if (chosenElement) chosenElement.classList.add('incorrect');
+                    weaknesses.push(tag);
+                }
+            } else if (type === "text") {
+                const textArea = q.querySelector('textarea');
+                userSelected = textArea.value;
+                textArea.disabled = true;
+                weaknesses.push(tag + " (مراجعة)");
+            }
+
+            examDetails.push({
+                questionNumber: qNum,
+                tag: tag,
+                studentAnswer: userSelected,
+                correctAnswer: correctAnswer,
+                isCorrect: answeredCorrectly
+            });
+
+            q.querySelector('.feedback-box').style.display = 'block';
+        });
+
+        const banner = document.getElementById('scoreBanner');
+        banner.style.display = 'block';
+        document.getElementById('scoreValue').innerText = currentScore + ' / ' + totalItems;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        const payload = {
+            studentId: currentStudentId,
+            subject: EXAM_META.subject,
+            module: EXAM_META.module,
+            lesson: EXAM_META.lesson,
+            assessmentType: EXAM_META.type,
+            score: currentScore,
+            total: totalItems,
+            timeSeconds: timeSeconds,
+            weaknesses: [...new Set(weaknesses)],
+            details: examDetails
+        };
+
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status === "success") {
+                document.getElementById('syncStatus').innerText = 'تم تسجيل النتيجة بنجاح في قاعدة البيانات ✔️';
+                document.getElementById('syncStatus').style.color = '#16a34a';
+                document.getElementById("submit-btn").style.display = "none";
+            } else {
+                throw new Error(data.message || "Unknown error");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('syncStatus').innerText = 'حدث خطأ أثناء إرسال البيانات. ❌';
+            document.getElementById('syncStatus').style.color = '#dc2626';
+            document.getElementById("submit-btn").disabled = false;
+            document.getElementById("submit-btn").innerText = "حاول الإرسال مرة أخرى";
+        });
+    }
+</script>
+
+</body>
+</html>
